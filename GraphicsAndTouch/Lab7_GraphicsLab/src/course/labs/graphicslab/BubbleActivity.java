@@ -83,16 +83,17 @@ public class BubbleActivity extends Activity {
 				.getStreamVolume(AudioManager.STREAM_MUSIC)
 				/ mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-		// TODO - make a new SoundPool, allowing up to 10 streams 
-		mSoundPool = null;
+		mSoundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0); //0 do nothing just doc rec
 
-
-		// TODO - set a SoundPool OnLoadCompletedListener that calls setupGestureDetector()
-
+		mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+			@Override
+			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+				setupGestureDetector();
+			}
+		});
 
 		
-		// TODO - load the sound from res/raw/bubble_pop.wav
-		mSoundID = 0;
+		mSoundID = mSoundPool.load(this, R.raw.bubble_pop, 1); //1 do nothing, just doc recommendation
 
 	}
 
@@ -165,26 +166,17 @@ public class BubbleActivity extends Activity {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
-		// TODO - Delegate the touch to the gestureDetector
-
-		
-		
-		
-		
-		
-		
-		return false;
-	
+		return mGestureDetector.onTouchEvent(event);
 	}
 
 	@Override
 	protected void onPause() {
 		
-		// TODO - Release all SoundPool resources
-
-
-
-
+		if(mSoundPool != null) {
+			mSoundPool.unload(mSoundID);
+			mSoundPool.release();
+			mSoundPool = null;
+		}
 
 		super.onPause();
 	}
@@ -289,12 +281,13 @@ public class BubbleActivity extends Activity {
 			
 			} else {
 				//TODO - set scaled bitmap size in range [1..3] * BITMAP_SIZE
-				mScaledBitmapWidth = 0;
-			
+				r.setSeed(3);
+				mScaledBitmapWidth = BITMAP_SIZE * r.nextInt();
+
 			}
 
 			// TODO - create the scaled bitmap using size set above
-			mScaledBitmap = null;
+			//mScaledBitmap = mBitmap. ;
 		}
 
 		// Start moving the BubbleView & updating the display
